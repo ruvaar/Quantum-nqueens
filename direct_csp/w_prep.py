@@ -1,18 +1,3 @@
-"""
-W-row / one-hot priprava za direct CSP pristop pri problemu 4-kraljic.
-
-Ideja:
-- Vsaka vrstica šahovnice je predstavljena z 4 qubiti.
-- Pripravimo kvantno stanje, ki je enakomerna superpozicija vseh
-  "exactly-one" konfiguracij v vrstici:
-      |1000>, |0100>, |0010>, |0001>
-  To je v bistvu 4-qubit W-stanje (brez faznih razlik).
-
-Implementacija:
-- Za N=4 uporabimo Qiskitovo `initialize` in pripravimo eksplicitni
-  16-dimenzijski vektor amplitud (2^4 = 16).
-- To je enostavno, stabilno in popolnoma dovolj za seminarsko nalogo.
-"""
 
 from qiskit import QuantumCircuit
 import numpy as np

@@ -32,26 +32,7 @@ def add_diagonal_checks(
     diag_ancillas: List[int],
     N: int = 4,
 ) -> None:
-    """
-    Implementacija diagonalnega kriterija po članku:
 
-        - Uporabimo N(N-1)/2 ancilla qubitov, vsak predstavlja en par vrstic.
-        - Vsaka ancilla se inicializira v |1>.
-        - Za vsak par diagonalno poravnanih polj med tema dvema vrsticama
-          izvedemo Toffoli (CCX) na ustrezno ancillo.
-        - Če sta na takem paru obe kraljici (oba qubita v |1>), se ancilla
-          preklopi iz |1> v |0>.
-
-    Ker W-stanja zagotavljajo natanko eno kraljico na vrstico, je za vsak
-    par vrstic možen največ en diagonalni konflikt, zato XOR-učinek več
-    Toffolijev ni problem.
-
-    Parametri:
-        qc           : QuantumCircuit
-        board_qubits : globalni indeksi N*N qubitov za tablo
-        diag_ancillas: globalni indeksi N(N-1)/2 ancilla qubitov
-        N            : velikost šahovnice (privzeto 4)
-    """
     if len(board_qubits) != N * N:
         raise ValueError(f"Pričakujem {N*N} board qubitov za {N}x{N} tablo.")
     expected_anc = N * (N - 1) // 2

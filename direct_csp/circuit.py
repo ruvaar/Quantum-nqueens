@@ -6,19 +6,6 @@ from diagonals import add_diagonal_checks
 
 
 def build_direct_csp_circuit() -> QuantumCircuit:
-    """
-    Direct CSP krog za problem 4-kraljic (N=4) po članku
-    "A Quantum Approach to solve N-Queens Problem":
-
-      - 4x4 tabla -> 16 qubitov (W-stanja po vrsticah)
-      - (N-1) = 3 stolpčnih ancill za column criterion
-      - N(N-1)/2 = 6 diagonalnih ancill za diagonal criterion
-
-    Skupaj:
-        16 + 3 + 6 = 25 qubitov.
-
-    Vse qubite na koncu izmerimo v klasične bite.
-    """
 
     N = 4
     num_board = N * N          # 16

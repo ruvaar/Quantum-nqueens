@@ -7,6 +7,7 @@ from circuit import (
     decode_assignment,
     is_valid_assignment,
     generate_valid_patterns,
+    optimal_grover_iterations,
 )
 
 
@@ -28,28 +29,26 @@ def format_columns(cols):
     return "(" + ", ".join(f"r{r}->c{c}" for r, c in enumerate(cols)) + ")"
 
 
-def analyze_sat_grover(num_iterations: int | None = None,
-                       shots: int = 4096,
-                       optimization_level: int = 1):
-    """
-    Zažene SAT+Grover pristop za problem 4-kraljic z "pravim" CNF-orakljem.
-
-    Koraki:
-      - zgradi vezje z build_sat_grover_circuit (če num_iterations=None,
-        uporabi optimalno število iteracij glede na # rešitev),
-      - vezje transpila na AerSimulator,
-      - simulira meritve,
-      - izpiše:
-          * globino in število vrat pred/po transpilanju,
-          * najpogostejša merjena stanja,
-          * verjetnost, da dobimo veljavno postavitev 4-kraljic.
-    """
+def analyze_sat_grover(num_iterations: int | None = None, shots: int = 4096, optimization_level: int = 3):
+    
     backend = AerSimulator()
 
     print("=== Gradnja Groverjevega vezja (SAT pristop, 4-kraljice) ===")
     qc = build_sat_grover_circuit(num_iterations=num_iterations)
+    metadata = qc.metadata or {}
+    iterations_used = metadata.get("num_iterations")
+    if iterations_used is None:
+        if num_iterations is not None:
+            iterations_used = num_iterations
+        else:
+            num_data = metadata.get("num_data_qubits", 8)
+            num_solutions = metadata.get("num_solutions", len(generate_valid_patterns()))
+            iterations_used = optimal_grover_iterations(num_data, num_solutions)
+    iterations_used = int(iterations_used)
+    iteration_note = "(optimal)" if num_iterations is None else "(ročno nastavljeno)"
     print(f"Število qubitov v vezju: {qc.num_qubits}")
     print(f"Število klasičnih bitov: {qc.num_clbits}")
+    print(f"Groverjeve iteracije: {iterations_used} {iteration_note}")
     print("Globina (pred transpilanjem):", qc.depth())
     print("Število vrat (pred transpilanjem):", qc.count_ops())
 
@@ -79,7 +78,6 @@ def analyze_sat_grover(num_iterations: int | None = None,
         flag = "✅" if valid else "❌"
         print(f"{bitstring}  ({cnt}x, {cnt / total_shots:.3%})  -> {cols} {flag}")
 
-    # --- analiza pravilnih rešitev ---
     num_correct = 0
     correct_states = []
 
@@ -101,10 +99,6 @@ def analyze_sat_grover(num_iterations: int | None = None,
             print(f"  {bitstring}  ({cnt}x, {cnt / total_shots:.3%})  -> {format_columns(cols)}")
     else:
         print("Nobena meritev ni dala veljavne postavitve 4-kraljic. 😢")
-
-    # sanity check: koliko rešitev najde klasični CSP/SAT
-    valid_patterns = generate_valid_patterns()
-    print(f"\nŠtevilo veljavnih rešitev po klasičnem preverjanju: {len(valid_patterns)}")
 
     return qc, tqc, counts
 

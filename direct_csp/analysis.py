@@ -8,27 +8,7 @@ from circuit import build_direct_csp_circuit
 
 
 def split_bitstring(bitstring: str, board_size: int = 16, num_cols: int = 3, num_diag: int = 6):
-    """
-    Razdeli Qiskit bitstring na:
-      - board_bits (seznam 16 bitov)
-      - col_bits (seznam 3 bitov)
-      - diag_bits (seznam 6 bitov)
 
-    Predpostavka (po novi verziji circuit.py):
-      - imamo en sam klasični register dolžine 25 bitov
-      - merimo v vrstnem redu: [board_qubits (16), col_ancillas (3), diag_ancillas (6)]
-      - Qiskit generira bitstring z MSB na levi strani, pri čemer je
-        najvišji klasični indeks (diag ancille) na levi, najnižji (board bit 0)
-        na desni.
-
-    Torej je:
-        clean = [d5][d4][d3][d2][d1][d0][c2][c1][c0][b15]...[b0]
-
-    Strategija:
-      - prvih num_diag bitov so diag_bits (6)
-      - naslednjih num_cols bitov so col_bits (3)
-      - preostalih board_size bitov je board_bits (16)
-    """
     clean = bitstring.replace(" ", "")
 
     if len(clean) != board_size + num_cols + num_diag:
@@ -67,23 +47,7 @@ def print_board(board_bits, N: int = 4):
 
 
 def analyze_direct_csp(shots: int = 2048, optimization_level: int = 2):
-    """
-    Analiza direct CSP kroga za 4-kraljice (W-stanja + stolpčni in diagonalni kriterij):
 
-      - zgradi in transpila krog
-      - izračuna gate counts in depth
-      - zažene simulacijo
-      - filtrira veljavne rešitve (brez stolpčnih in diagonalnih konfliktov)
-      - izpiše rešitve in nekaj statistik
-
-    NASTAVITEV ANCILL (po članku):
-      - stolpčni ancille (3): |1> <=> stolpec zadovoljuje kriterij (natanko ena kraljica)
-      - diagonalne ancille (6): |1> <=> za ta par vrstic NI diagonalnega konflikta
-
-    Veljavna postavitev:
-      - vsi 3 stolpčni ancille = 1
-      - vseh 6 diagonalnih ancill = 1
-    """
     qc = build_direct_csp_circuit()
     backend = AerSimulator()
 
